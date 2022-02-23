@@ -132,10 +132,10 @@ public class HttpServer {
             String[] petition = file.replace("/Consultas?", "").split("&");
             for (String value : petition) {
                 String[] param = value.split("=");
-                if (param[0] == "lon") {
+                if (param[0].equals("lon")) {
                     lon = new Integer(param[1]);
                 }
-                if (param[0] == "lat") {
+                if (param[0].equals("lat")) {
                     lat = new Integer(param[1]);
                 }
             }
