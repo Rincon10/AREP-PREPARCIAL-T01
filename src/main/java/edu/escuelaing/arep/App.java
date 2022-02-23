@@ -1,8 +1,7 @@
 package edu.escuelaing.arep;
 
 /**
- * Hello world!
- *
+ * Main Class
  */
 public class App 
 {
