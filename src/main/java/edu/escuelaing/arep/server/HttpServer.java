@@ -1,9 +1,13 @@
 package edu.escuelaing.arep.server;
 
+import edu.escuelaing.arep.NanoSpringBoot;
+
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,6 +42,19 @@ public class HttpServer {
     }
 
     /**
+     * Method that return the port number that gonna be used by the connection
+     *
+     * @return int, port number
+     */
+    private static int getPort() {
+        if (System.getenv("PORT") != null) {
+            return Integer.parseInt(System.getenv("PORT"));
+        }
+        return 35000;
+    }
+
+
+    /**
      * Method that return a default html page
      *
      * @return String, that represents the html page
@@ -57,4 +74,103 @@ public class HttpServer {
                 + "</body>"
                 + "</html>";
     }
+
+    /**
+     * Method that establish a connection with a specific socket client
+     *
+     * @param clientSocket, client socket with who gonna establish a connection
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public void serverConnection(Socket clientSocket) throws IOException, URISyntaxException {
+        this.clientSocket = clientSocket;
+        serverConnection();
+    }
+
+    /**
+     * Method that establish a connection between client and server
+     *
+     * @throws IOException
+     * @throws URISyntaxException
+     */
+    public void serverConnection() throws IOException, URISyntaxException {
+        outputStream = clientSocket.getOutputStream();
+        out = new PrintWriter(clientSocket.getOutputStream(), true);
+        in = new BufferedReader(
+                new InputStreamReader(
+                        clientSocket.getInputStream()));
+        String inputLine, outputLine;
+        ArrayList<String> request = new ArrayList<>();
+
+        while ((inputLine = in.readLine()) != null) {
+            System.out.println("Received: " + inputLine);
+            request.add(inputLine);
+            if (!in.ready()) {
+                break;
+            }
+        }
+
+        String file;
+        // Example: 0= "GET /public/css/index.css HTPP/1.1"
+        file = request.get(0).split(" ")[1];
+        resourceURI = new URI(file);
+        if (file.startsWith("/Clima/")) {
+            outputLine = invokeService("mainPage");
+        } else if (file.length() == 1) {
+            outputLine = getDefaultHTML();
+        } else {
+            String[] controller = file.split("/");
+            outputLine = invokeService(controller[1]);
+        }
+        out.println(outputLine);
+    }
+
+    /**
+     * Method that invoke a specific method from a class
+     *
+     * @param file, String that represents the name service stored on our Framework
+     * @return String, That represents the execution of the method
+     */
+    private String invokeService(String file) {
+        return NanoSpringBoot.getInstance().invokeService(file);
+    }
+
+    /**
+     * Method that close the connection between the client and the server
+     *
+     * @throws IOException
+     */
+    public void closeConnection() throws IOException {
+        out.close();
+        in.close();
+        clientSocket.close();
+    }
+
+    /**
+     * Method that start running the HttpServer
+     *
+     * @throws IOException
+     */
+    public void start() throws IOException, URISyntaxException {
+        serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(getPort());
+        } catch (IOException e) {
+            System.err.println("Could not listen on port: 35000.");
+            System.exit(1);
+        }
+
+        boolean running = true;
+        while (running) {
+            clientSocket = null;
+
+            System.out.println("Listo para recibir ...");
+            clientSocket = serverSocket.accept();
+
+            serverConnection(clientSocket);
+            closeConnection();
+        }
+        serverSocket.close();
+    }
+
 }

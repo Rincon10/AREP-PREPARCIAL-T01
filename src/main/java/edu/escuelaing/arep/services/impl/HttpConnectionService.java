@@ -1,5 +1,7 @@
 package edu.escuelaing.arep.services.impl;
 
+import edu.escuelaing.arep.annotations.Component;
+import edu.escuelaing.arep.annotations.RequestMapping;
 import edu.escuelaing.arep.services.IHttpConnectionService;
 
 import java.io.BufferedReader;

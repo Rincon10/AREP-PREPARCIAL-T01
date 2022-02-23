@@ -32,7 +32,7 @@ public class NanoSpringBoot {
     }
 
     private String[] searchComponentList() {
-        return new String[]{"edu.escuelaing.arep.controllers.ClimaController"};
+        return new String[]{"edu.escuelaing.arep.controllers.ClimaController","edu.escuelaing.arep.services.impl.HttpConnectionService"};
     }
 
     /**
