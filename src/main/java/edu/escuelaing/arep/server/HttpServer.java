@@ -1,8 +1,11 @@
 package edu.escuelaing.arep.server;
 
 import edu.escuelaing.arep.NanoSpringBoot;
+import edu.escuelaing.arep.services.impl.HttpConnectionService;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URI;
@@ -24,6 +27,8 @@ public class HttpServer {
     private PrintWriter out;
     private BufferedReader in;
     private URI resourceURI;
+    private int lat;
+    private int lon;
     public static OutputStream outputStream;
 
     public final static Map<String, String> typesMap = new HashMap<String, String>();
@@ -84,7 +89,13 @@ public class HttpServer {
      */
     public void serverConnection(Socket clientSocket) throws IOException, URISyntaxException {
         this.clientSocket = clientSocket;
-        serverConnection();
+        try {
+            serverConnection();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -93,7 +104,7 @@ public class HttpServer {
      * @throws IOException
      * @throws URISyntaxException
      */
-    public void serverConnection() throws IOException, URISyntaxException {
+    public void serverConnection() throws IOException, URISyntaxException, InvocationTargetException, IllegalAccessException {
         outputStream = clientSocket.getOutputStream();
         out = new PrintWriter(clientSocket.getOutputStream(), true);
         in = new BufferedReader(
@@ -116,6 +127,25 @@ public class HttpServer {
         resourceURI = new URI(file);
         if (file.startsWith("/Clima/")) {
             outputLine = invokeService("mainPage");
+        } else if (file.startsWith("/Consultas")) {
+            //this petition works only with the paramas lat and lon
+            String[] petition = file.replace("/Consultas?", "").split("&");
+            for (String value : petition) {
+                String[] param = value.split("=");
+                if (param[0] == "lon") {
+                    lon = new Integer(param[1]);
+                }
+                if (param[0] == "lat") {
+                    lat = new Integer(param[1]);
+                }
+            }
+
+            Method m = getMethod("query");
+
+            outputLine = "HTTP/1.1 200 OK \r\n"
+                    + "Content-Type: " + HttpServer.typesMap.get("json") + "\r\n"
+                    + "\r\n"
+                    + m.invoke(null, lat, lon);
         } else if (file.length() == 1) {
             outputLine = getDefaultHTML();
         } else {
@@ -123,6 +153,10 @@ public class HttpServer {
             outputLine = invokeService(controller[1]);
         }
         out.println(outputLine);
+    }
+
+    private Method getMethod(String name) {
+        return NanoSpringBoot.getInstance().getMethod(name);
     }
 
     /**

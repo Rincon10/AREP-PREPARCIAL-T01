@@ -73,6 +73,12 @@ public class NanoSpringBoot {
         }
     }
 
+    public Method getMethod(String serviceName){
+        if (!services.containsKey(serviceName)) serviceName = "notFound";
+        Method serviceMethod = services.get(serviceName);
+        return serviceMethod;
+    }
+
     /**
      * Method that invoke a specific method from a class
      *

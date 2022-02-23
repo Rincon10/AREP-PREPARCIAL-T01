@@ -18,7 +18,9 @@ import org.json.JSONObject;
  * @version 1.0 2/23/2022
  * @project OpenWeather
  */
+@Component
 public class HttpConnectionService implements IHttpConnectionService {
+    public  static HttpConnectionService  service = new HttpConnectionService();
     private static int lon;
     private static int lat;
     private HttpURLConnection con;
@@ -94,6 +96,12 @@ public class HttpConnectionService implements IHttpConnectionService {
         System.out.println("*****************************************************************************");
         return null;
 
+    }
+
+    @RequestMapping("query")
+    public static JSONObject startConnection(int lat, int lon) throws IOException {
+        service = new HttpConnectionService(lat, lon);
+        return service.startConnection();
     }
 
     /**
