@@ -9,6 +9,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.json.JSONObject;
+import net.minidev.json.parser.ParseException;
+
+
 /**
  * @author Iván Camilo Rincón Saavedra
  * @version 1.0 2/23/2022
@@ -17,6 +21,7 @@ import java.net.URL;
 public class HttpConnectionService implements IHttpConnectionService {
     private static int lon;
     private static int lat;
+    private HttpURLConnection con;
     private String endPoint;
     private URL url;
     private static final String USER_AGENT = "Mozilla/5.0";
@@ -35,8 +40,8 @@ public class HttpConnectionService implements IHttpConnectionService {
     /**
      * Class that gonna make the HTTP connection to the API, using a default lat and lon
      */
-    public HttpConnectionService(){
-        this(0,0);
+    public HttpConnectionService() {
+        this(0, 0);
     }
 
     /**
@@ -55,12 +60,12 @@ public class HttpConnectionService implements IHttpConnectionService {
         }
     }
 
-    @Override
-    public void startConnection() throws IOException {
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("GET");
-        con.setRequestProperty("User-Agent", USER_AGENT);
-
+    /**
+     * Method that return the JsonObject of our petition
+     * @return JSONObject, response of the petition
+     * @throws IOException
+     */
+    private JSONObject getResponse() throws IOException {
         //The following invocation perform the connection implicitly before getting the code
         int responseCode = con.getResponseCode();
         System.out.println("*****************************************************************************");
@@ -79,17 +84,33 @@ public class HttpConnectionService implements IHttpConnectionService {
             in.close();
 
             // print result
-            System.out.println(response.toString());
+            JSONObject json = new JSONObject(response.toString());
+            return json;
         } else {
             System.out.println("GET request not worked");
         }
         System.out.println("GET DONE from url" + url.getPath() + "\n");
         System.out.println("*****************************************************************************");
+        return null;
+
+    }
+
+    /**
+     * Method that start the connection between the url and the API
+     * @return JSONObject, response of the petition
+     * @throws IOException
+     */
+    @Override
+    public JSONObject startConnection() throws IOException {
+        con = (HttpURLConnection) url.openConnection();
+        con.setRequestMethod("GET");
+        con.setRequestProperty("User-Agent", USER_AGENT);
+        return getResponse();
     }
 
     public static void main(String[] args) {
         try {
-            new HttpConnectionService(0,0).startConnection();
+            new HttpConnectionService(0, 0).startConnection();
         } catch (IOException ioException) {
             ioException.printStackTrace();
         }
