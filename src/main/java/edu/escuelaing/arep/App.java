@@ -1,12 +1,13 @@
 package edu.escuelaing.arep;
 
+
 /**
- * Main Class
+ * Main Class that is gonna run the nanoSpring
  */
-public class App 
+public class App
 {
     public static void main( String[] args )
     {
-        System.out.println( "Hello World!" );
+        NanoSpringBoot.getInstance().startServer();
     }
 }
