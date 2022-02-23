@@ -1,0 +1,1 @@
+mvn archetype:generate -DgroupId=edu.escuelaing.arep -DartifactId=OpenWeather -DarchetypeArtifactId=maven-archetype-quickstart
