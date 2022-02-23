@@ -10,8 +10,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.json.JSONObject;
-import net.minidev.json.parser.ParseException;
-
 
 /**
  * @author Iván Camilo Rincón Saavedra
@@ -62,6 +60,7 @@ public class HttpConnectionService implements IHttpConnectionService {
 
     /**
      * Method that return the JsonObject of our petition
+     *
      * @return JSONObject, response of the petition
      * @throws IOException
      */
@@ -97,6 +96,7 @@ public class HttpConnectionService implements IHttpConnectionService {
 
     /**
      * Method that start the connection between the url and the API
+     *
      * @return JSONObject, response of the petition
      * @throws IOException
      */
